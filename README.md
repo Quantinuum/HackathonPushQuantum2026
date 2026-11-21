@@ -108,33 +108,6 @@ the repository root and prefix the commands with `uv run --locked`, for example
   to run Guppy in Selene, noiseless by default. Its default output includes
   the basis, for example `program.z.local.json`.
 
-### Submit to Nexus through Aqora
-
-Install the Aqora CLI and sign in. Use your Aqora team username or ID with
-`--team` so the job uses your team's emulator quota.
-[Aqora authentication](https://docs.aqora.io/getting-started/authentication/)
-
-```bash
-uv tool install aqora
-aqora login
-nexus-emulator program.py --basis z --team my-team
-nexus-emulator program.x.bc --team my-team --platform nexus:H2-2E
-```
-
-The supported platforms are `nexus:H2-1E` (the default) and `nexus:H2-2E`.
-Use `--basis` for Guppy source and omit it for bitcode, which already includes
-measurement. The output file, for example `program.z.nexus.json`, records the
-Aqora job ID before waiting for results.
-
-Default output paths are beside the input file. Use `-o` or `--output` to
-choose a path. Both emulators default to 128 shots and accept `--shots`.
-Each JSON `results` element is one shot containing ordered `[tag, value]` pairs
-on a single line.
-Both commands write the measurement outcomes under `bits` as integers `0` and `1`.
-For other QIR output layouts, Nexus results that cannot be decoded as Guppy
-tags are stored as a serialized pytket `backend_result`. Use the shot values
-to build the submission format below.
-
 ### Local simulation with noise
 
 Enable depolarizing noise with `--noise-model depolarizing`. Use a separate

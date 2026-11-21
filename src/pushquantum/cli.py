@@ -135,8 +135,8 @@ def local_sim_main():
 
             error_model = DepolarizingErrorModel(
                 random_seed=123141 if args.seed is None else args.seed,
-                p_1q=1e-5,
-                p_2q=1.4e-4,
+                p_1q=3.9e-5,
+                p_2q=8.3e-4,
                 p_meas=1e-3,
                 p_init=1e-5,
             )

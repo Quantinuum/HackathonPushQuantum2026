@@ -1,6 +1,6 @@
 # Tilted-product example
 
-This baseline requires the target thermal observables
+This baseline example requires the target thermal observables
 $m_x=\langle\sum_i X_i/16\rangle$ and
 $\langle m_z^2\rangle=\langle(\sum_i Z_i/16)^2\rangle$ to be known beforehand,
 as well as the ability to sample a correlated classical Ising distribution.
@@ -65,6 +65,18 @@ or pass the path of your H2-2E manifest.
 Use `--temperature 2.375 --basis Z --output results/smoke.json` for one experiment.
 The H2 emulators use their default noise models. Local Selene runs are
 noiseless and record that in the JSON output.
+
+To combine `tilted_product.x.local.json`, `tilted_product.y.local.json`, and
+`tilted_product.z.local.json` from the current directory into a scoring submission:
+
+```bash
+uv run --locked example_combine.py --temperature 2.375
+uv run --locked ../score.py submission_2.375.json
+```
+
+Use `--x PATH --y PATH --z PATH` for other locations or Nexus result files, and
+`-o PATH` to choose the combined output. All three runs must be at the specified
+temperature. The script retains only the 128 measured 16-bit rows per basis.
 
 The files have separate responsibilities:
 
