@@ -21,14 +21,24 @@ uv tool install --python 3.12 .
 cd examples
 compile tilted_product.py --basis x -o results/tilted_product.x.bc
 local-sim tilted_product.py --basis y -o results/tilted_product.y.local.json
-nexus-emulator tilted_product.py --basis z -o results/tilted_product.z.nexus.json
 ```
 
 If your shell cannot find the commands, run `uv tool update-shell` and open a
 new terminal.
 
 The CLI selects the saved table for the requested basis and measures the
-16 qubits returned by `main`. The Nexus command uses emulator credits.
+16 qubits returned by `main`. For remote runs, sign in to Aqora and submit with
+your team username or ID to use your team's emulator quota.
+
+```bash
+uv tool install aqora
+aqora login
+nexus-emulator tilted_product.py --basis z --team my-team -o results/tilted_product.z.nexus.json
+```
+
+You can target `nexus:H2-1E` (the default) or `nexus:H2-2E` with `--platform`.
+Both the standalone command and the batch runner accept these two platforms.
+
 Use `submit.py` to run several bases or temperatures and validate the
 preparation labels. The Python scripts below use the repository's locked
 project environment through `uv run --locked`.
@@ -43,17 +53,18 @@ uv run --locked submit.py --compile-only --output results/compile_check.json
 # Noiseless local simulation: T=2.375, three bases, 128 shots each.
 uv run --locked submit.py --local
 
-# Nexus H2-1E execution (uses your account's emulator credits).
-# Login opens a browser only if your cached Nexus login is absent or expired.
-uv run --locked submit.py
+# Submit the three bases to H2-1E through Aqora.
+uv run --locked submit.py --team my-team
 ```
 
-The Nexus command waits for completion and writes
-`results/tilted_product_h2_1e.json`. If interrupted after submission, resume the
-same job with `uv run --locked submit.py --resume results/tilted_product_h2_1e.json`.
+The batch runner saves the Aqora job ID before waiting. It writes
+`results/tilted_product_h2_1e.json` by default and
+`results/tilted_product_h2_2e.json` with `--platform nexus:H2-2E`. If interrupted,
+resume the same job with `uv run --locked submit.py --resume results/tilted_product_h2_1e.json`
+or pass the path of your H2-2E manifest.
 Use `--temperature 2.375 --basis Z --output results/smoke.json` for one experiment.
-H2-1E uses its default noise model; the local Selene run is noiseless and clearly
-identified as such in its separate JSON output.
+The H2 emulators use their default noise models. Local Selene runs are
+noiseless and record that in the JSON output.
 
 The files have separate responsibilities:
 

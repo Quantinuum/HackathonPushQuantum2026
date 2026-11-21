@@ -4,8 +4,8 @@ from contextlib import contextmanager
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
-from uuid import uuid4
 
+from pushquantum.nexus import add_submission_arguments, submit_qir, wait_for_results
 from pushquantum.program import BASES, RunConfig, current_run, with_measurement
 from pushquantum.results import write_json
 
@@ -152,11 +152,10 @@ def local_sim_main():
 
 
 def nexus_emulator_main():
-    parser = command("Run a program on the Nexus H2-1E emulator.",
+    parser = command("Run a program on a Nexus H2 emulator through Aqora.",
                      "Python file defining a Guppy main, or QIR bitcode.", basis_required=False)
     parser.add_argument("--shots", type=positive_int, default=128, help="Shot count (default: 128).")
-    parser.add_argument("--project", default="PushQuantum-Thermal-Hackathon",
-                        help="Nexus project (default: PushQuantum-Thermal-Hackathon).")
+    add_submission_arguments(parser, team_required=True)
     args = parser.parse_args()
     is_source = args.input.suffix.lower() == ".py"
     if is_source and args.basis is None:
@@ -180,29 +179,18 @@ def nexus_emulator_main():
             parser.error(f"Expected LLVM bitcode: {error}")
         qir_entrypoint(module)
 
-    import qnexus as qnx
     from hugr_qir.h2_helpers.results import ResultConversionError, backendresult_to_qsysresult
 
     output.parent.mkdir(parents=True, exist_ok=True)
-    qnx.login()
-    project = qnx.projects.get_or_create(name=args.project)
-    name = f"{source.stem}-{uuid4().hex[:12]}"
-    program = qnx.qir.upload(qir=qir, name=name, project=project)
-    document = {"backend": "H2-1E", "shots": args.shots, "project_id": str(project.id),
-                "program_id": str(program.id), "status": "uploaded"}
+    job = submit_qir(qir, platform=args.platform, team=args.team, shots=args.shots)
+    document = {"backend": args.platform.removeprefix("nexus:"), "shots": args.shots,
+                "platform": args.platform, "team": args.team, "job_id": job.job_id,
+                "status": "submitted"}
     if is_source:
         document["basis"] = args.basis
     write_json(output, document)
-    job = qnx.start_execute_job(
-        programs=[program], n_shots=[args.shots],
-        backend_config=qnx.QuantinuumConfig(device_name="H2-1E"), name=name, project=project,
-    )
-    document.update(job_id=str(job.id), status="submitted")
-    write_json(output, document)
-    print(f"Waiting for Nexus job {job.id}", flush=True)
-    qnx.jobs.wait_for(job)
-    result_ref, = qnx.jobs.results(job)
-    result = result_ref.download_result()
+    provider_result, = wait_for_results(job, expected_count=1)
+    result = provider_result.to_backend_result()
     backend_result = result.to_dict()
     if "shots" in backend_result:
         try:
@@ -211,6 +199,6 @@ def nexus_emulator_main():
             document["backend_result"] = backend_result
     else:
         document["backend_result"] = backend_result
-    document.update(result_id=str(result_ref.id), status="completed")
+    document.update(result_index=provider_result.index, status="completed")
     write_json(output, document)
     print(f"Wrote {output}")

@@ -55,7 +55,8 @@ Today, we focus on (i) and (iii).
 ## Requirements and Constraints
 
 - Circuits should use maximum 24 qubits.
-- Write Guppy circuit and run on H2-1E or H2-2E emulator to collect shots.
+- Write a Guppy circuit and submit it through Aqora to the Nexus H2-1E or
+  H2-2E emulator to collect shots.
 - For each temperature and measurement basis, submit exactly 128 shots.
 
 
@@ -94,8 +95,6 @@ def main() -> array[qubit, 16]:
 compile program.py --basis x
 compile program.py --basis y --format llvm-ir
 local-sim program.py --basis z --seed 42
-nexus-emulator program.py --basis z --project MyNexusProject
-nexus-emulator program.x.bc --project MyNexusProject
 ```
 
 To use the versions in the repository's lockfile, run `uv sync --locked` from
@@ -108,10 +107,24 @@ the repository root and prefix the commands with `uv run --locked`, for example
 - `local-sim` reads the required qubit count from the compiled QIR and uses it
   to run Guppy in Selene, noiseless by default. Its default output includes
   the basis, for example `program.z.local.json`.
-- `nexus-emulator` accepts Guppy source or LLVM bitcode. It logs in to Nexus,
-  executes on H2-1E using emulator credits, and writes a file such as
-  `program.z.nexus.json`. The file records the job ID while the command waits
-  for results. Omit `--basis` for bitcode because it already includes measurement.
+
+### Submit to Nexus through Aqora
+
+Install the Aqora CLI and sign in. Use your Aqora team username or ID with
+`--team` so the job uses your team's emulator quota.
+[Aqora authentication](https://docs.aqora.io/getting-started/authentication/)
+
+```bash
+uv tool install aqora
+aqora login
+nexus-emulator program.py --basis z --team my-team
+nexus-emulator program.x.bc --team my-team --platform nexus:H2-2E
+```
+
+The supported platforms are `nexus:H2-1E` (the default) and `nexus:H2-2E`.
+Use `--basis` for Guppy source and omit it for bitcode, which already includes
+measurement. The output file, for example `program.z.nexus.json`, records the
+Aqora job ID before waiting for results.
 
 Default output paths are beside the input file. Use `-o` or `--output` to
 choose a path. Both emulators default to 128 shots and accept `--shots`.
