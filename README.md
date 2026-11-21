@@ -15,6 +15,16 @@ H = - \sum_{\langle i,j \rangle} Z_i Z_j - g \sum_{i} X_i .
 Throughout the challenge, we will study the case where the transverse field strength $g = 1$.
 Here $X_i$ and $Z_i$ are Pauli operators.
 
+A quantum thermal state \rho is defined as:
+
+```math
+\rho = \frac{e^{-H/T}}{Z} \quad \text{with} \quad Z = \text{Tr}(e^{-H/T})
+```
+We assume that $$k_B = 1$$, where $k_B$ is the Boltzmann constant.
+
+
+where $Z$ is the partition function, $k_B$ is the Boltzmann constant, and $T$ is the temperature.
+
 The participants have to come up with quantum algorithms to prepare the thermal states at the given temperatures $T \in [10^{-2}, 1.1875, 2.375, 4]$.
 For each state at the given temperature T, measure the state in three different bases: X, Y, and Z, using 128 shots per basis.
 Upload all the shots for scoring.
@@ -176,8 +186,8 @@ emulator execution.
 ### Score formula
 
 We score **30 observables**:
-- the single-site expectation value $<X>$, $<Y>$, and $<Z>$
-- the two-site expectation value $<X_i X_j>$, $<Y_i Y_j>$, and $<Z_i Z_j>$ for the nine displacements $(d_x,d_y)$
+- the single-site expectation value $< X_i >$, $< Y_i >$, and $< Z_i >$
+- the two-site expectation value $<X_i X_j>$, $<Y_i Y_j>$, and $<Z_i Z_j>$ for the nine displacements $(d_x, d_y)$
 `(0,1), (0,2), (1,0), (1,1), (1,2), (1,3), (2,0), (2,1), (2,2)`.
 
 For each observable, we compute the average over all 128 shots and all 16 sites.
