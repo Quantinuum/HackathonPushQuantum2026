@@ -15,15 +15,13 @@ H = - \sum_{\langle i,j \rangle} Z_i Z_j - g \sum_{i} X_i .
 Throughout the challenge, we will study the case where the transverse field strength $g = 1$.
 Here $X_i$ and $Z_i$ are Pauli operators.
 
-A quantum thermal state \rho is defined as:
+A quantum thermal state $\rho(T)$ at temperature $T$ is defined as:
 
 ```math
-\rho = \frac{e^{-H/T}}{Z} \quad \text{with} \quad Z = \text{Tr}(e^{-H/T})
+\rho(T) = \frac{e^{-H/T}}{Z} \quad \text{with} \quad Z = \text{Tr}(e^{-H/T})
 ```
 We assume that $$k_B = 1$$, where $k_B$ is the Boltzmann constant.
 
-
-where $Z$ is the partition function, $k_B$ is the Boltzmann constant, and $T$ is the temperature.
 
 The participants have to come up with quantum algorithms to prepare the thermal states at the given temperatures $T \in [10^{-2}, 1.1875, 2.375, 4]$.
 For each state at the given temperature T, measure the state in three different bases: X, Y, and Z, using 128 shots per basis.
